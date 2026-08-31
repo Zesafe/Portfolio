@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Yassine Abousaid | Portfolio</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Outfit Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --accent-blue: #2563eb;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --border-width: 4px;
+            --transition-snappy: 200ms cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* Flat Design Utilities */
+        .flat-card {
+            transition: transform var(--transition-snappy);
+            border: none;
+        }
+        .flat-card:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-flat {
+            transition: transform var(--transition-snappy), background-color var(--transition-snappy);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-flat:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-outline {
+            border: var(--border-width) solid var(--text-main);
+            background: transparent;
+        }
+
+        /* Poster Hero Shapes */
+        .hero-shape {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .terminal-flat {
+            background: #000000;
+            color: #ffffff;
+            padding: 1.5rem;
+        }
+
+        .section-block-alt {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const PROJECTS = [
+            {
+                id: "vhdl-multiplier",
+                num: "01",
+                title: "4-bit VHDL Multiplier",
+                short: "Combinational hardware multiplier with carry-propagation logic.",
+                tags: ["VHDL", "Digital Logic", "Simulation"],
+                color: "#8b5cf6",
+                year: "2024",
+                detail: {
+                    headline: "Gate-level combinational multiplier",
+                    body: `A 4-bit combinational multiplier built entirely in VHDL, simulated with a comprehensive testbench covering all 256 input combinations.`,
+                    highlights: ["Full 4×4 = 8-bit output width", "Structural VHDL", "100% input-space coverage"],
+                    tech: ["VHDL", "Digital Logic"],
+                },
+            },
+            {
+                id: "add-shift",
+                num: "02",
+                title: "Add-Shift Multiplier",
+                short: "Sequential multiplication via iterative add-and-shift operations.",
+                tags: ["VHDL", "Architecture", "FSM"],
+                color: "#10b981",
+                year: "2024",
+                detail: {
+                    headline: "Iterative hardware vs software tradeoffs",
+                    body: `Implements binary multiplication using the classic add-and-shift algorithm in a finite-state machine architecture.`,
+                    highlights: ["FSM design", "Reduced gate count", "Sequential timing analysis"],
+                    tech: ["VHDL", "FSM Design"],
+                },
+            },
+            {
+                id: "heapselect",
+                num: "03",
+                title: "HeapSelect Algorithm",
+                short: "k-th smallest element in O(n + k log n) using heap structures.",
+                tags: ["Python", "Algorithms", "Data Structures"],
+                color: "#f59e0b",
+                year: "2024",
+                detail: {
+                    headline: "Sub-linear selection via heap extraction",
+                    body: `HeapSelect solves the k-th order statistic problem efficiently.`,
+                    highlights: ["Linear build time", "Sub-linear selection", "Benchmarked performance"],
+                    tech: ["Python", "Heaps"],
+                },
+            },
+        ];
+
+        const HOME_CARDS = [
+            { icon: "cpu", title: "Hardware", desc: "VHDL, digital logic, FSM design and simulation." },
+            { icon: "git-branch", title: "Algorithms", desc: "Complexity analysis, heaps, graph traversal, selection." },
+            { icon: "layout", title: "Web Dev", desc: "Next.js, React, Tailwind — building real user-facing apps." },
+            { icon: "settings", title: "Systems", desc: "Low-level C, memory, architecture, and operating systems." },
+        ];
+
+        function App() {
+            const [page, setPage] = useState("home");
+            const [projectId, setProjectId] = useState(null);
+            const [theme, setTheme] = useState("light");
+
+            useEffect(() => {
+                lucide.createIcons();
+            }, [page, projectId]);
+
+            const toggleTheme = () => {
+                const newTheme = theme === "light" ? "dark" : "light";
+                setTheme(newTheme);
+                document.documentElement.setAttribute("data-theme", newTheme);
+            };
+
+            const nav = (p) => {
+                setPage(p);
+                setProjectId(null);
+                window.scrollTo(0, 0);
+            };
+
+            const openProject = (id) => {
+                setProjectId(id);
+                setPage("project");
+                window.scrollTo(0, 0);
+            };
+
+            return (
+                <div className="min-h-screen transition-colors duration-200">
+                    <nav className="fixed top-0 left-0 w-full z-50 bg-[var(--bg-primary)] border-b-[var(--border-width)] border-[var(--text-main)] px-6 py-4 flex justify-between items-center">
+                        <button onClick={() => nav("home")} className="text-2xl font-black uppercase tracking-tighter">
+                            ya<span className="text-[var(--accent-blue)]">.</span>dev
+                        </button>
+                        <div className="flex gap-6 items-center">
+                            <div className="hidden md:flex gap-4">
+                                {["home", "about", "projects", "contact"].map(p => (
+                                    <button 
+                                        key={p} 
+                                        onClick={() => nav(p)}
+                                        className={`uppercase font-bold text-sm tracking-widest px-3 py-1 transition-colors ${page === p ? 'bg-[var(--accent-blue)] text-white' : 'hover:text-[var(--accent-blue)]'}`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                            </div>
+                            <button onClick={toggleTheme} className="w-10 h-10 border-[var(--border-width)] border-[var(--text-main)] flex items-center justify-center font-bold">
+                                {theme === 'light' ? '☽' : '☀'}
+                            </button>
+                        </div>
+                    </nav>
+
+                    <main className="pt-16">
+                        {page === "home" && <HomePage onNav={nav} onProject={openProject} />}
+                        {page === "about" && <AboutPage />}
+                        {page === "projects" && <ProjectsPage onProject={openProject} />}
+                        {page === "contact" && <ContactPage />}
+                        {page === "project" && <ProjectDetail projectId={projectId} onBack={() => nav("projects")} />}
+                    </main>
+
+                    <footer className="bg-black text-white py-12 px-6 border-t-[var(--border-width)] border-white">
+                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div className="text-xl font-black uppercase">Yassine Abousaid © 2026</div>
+                            <div className="flex gap-8 uppercase font-bold text-xs tracking-[0.2em]">
+                                <span>Next.js</span>
+                                <span>TypeScript</span>
+                                <span>Tailwind</span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        function HomePage({ onNav, onProject }) {
+            return (
+                <div>
+                    <section className="relative min-h-[85vh] flex flex-col justify-center px-6 overflow-hidden bg-[var(--accent-amber)] text-black border-b-[var(--border-width)] border-black">
+                        <div className="hero-shape rounded-full w-[600px] h-[600px] bg-white -top-20 -right-20"></div>
+                        <div className="hero-shape rotate-45 w-[400px] h-[400px] bg-white -bottom-20 -left-20"></div>
+                        
+                        <div className="max-w-6xl mx-auto w-full relative z-10">
+                            <div className="bg-black text-white inline-block px-4 py-1 mb-6 font-bold uppercase tracking-widest text-xs">
+                                Available for opportunities
+                            </div>
+                            <h1 className="text-7xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter mb-8">
+                                Yassine <br /> <span className="text-white">Abousaid</span>
+                            </h1>
+                            <p className="max-w-2xl text-xl md:text-2xl font-medium mb-10 opacity-90">
+                                Motivated CS student (5th semester, TU Dortmund). 
+                                I build robust hardware logic and modern web interfaces with precision and performance.
+                            </p>
+                            <div className="flex flex-wrap gap-4">
+                                <button onClick={() => onNav("projects")} className="btn-flat btn-primary py-5 px-10 text-xl">
+                                    View Projects <i data-lucide="arrow-right" className="ml-2"></i>
+                                </button>
+                                <button onClick={() => onNav("contact")} className="btn-flat btn-outline py-5 px-10 text-xl text-black">
+                                    Get in Touch
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="py-24 px-6 bg-[var(--bg-primary)]">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="flex flex-col md:flex-row gap-16">
+                                <div className="md:w-1/3">
+                                    <div className="text-sm font-black uppercase tracking-widest text-[var(--accent-blue)] mb-4">Background</div>
+                                    <h2 className="text-5xl font-black uppercase tracking-tighter leading-none">I solve <br /> complex <br /> problems.</h2>
+                                </div>
+                                <div className="md:w-2/3">
+                                    <p className="text-2xl text-[var(--text-muted)] leading-relaxed mb-12">
+                                        I'm a Computer Science student passionate about understanding how things work at every level — from NAND gates to React components.
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {HOME_CARDS.map(c => (
+                                            <div key={c.title} className="bg-[var(--bg-secondary)] p-8 flat-card border-[var(--border-width)] border-transparent hover:border-[var(--text-main)]">
+                                                <div className="mb-4 text-[var(--accent-blue)]">
+                                                    <i data-lucide={c.icon} className="w-8 h-8"></i>
+                                                </div>
+                                                <h4 className="text-xl font-bold mb-2 uppercase">{c.title}</h4>
+                                                <p className="text-[var(--text-muted)]">{c.desc}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="py-24 px-6 bg-[var(--bg-secondary)] border-y-[var(--border-width)] border-black">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="flex justify-between items-end mb-16">
+                                <div>
+                                    <div className="text-sm font-black uppercase tracking-widest text-[var(--accent-blue)] mb-4">Work</div>
+                                    <h2 className="text-5xl font-black uppercase tracking-tighter">Featured Projects</h2>
+                                </div>
+                                <button onClick={() => onNav("projects")} className="hidden md:block font-bold uppercase tracking-widest border-b-[var(--border-width)] border-black">
+                                    View All Projects
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {PROJECTS.map((p) => (
+                                    <div 
+                                        key={p.id} 
+                                        onClick={() => onProject(p.id)}
+                                        className="cursor-pointer flat-card p-10 flex flex-col h-[400px]"
+                                        style={{ backgroundColor: p.color, color: '#000' }}
+                                    >
+                                        <div className="text-xs font-black mb-auto opacity-70">PROJECT {p.num}</div>
+                                        <div className="mt-auto">
+                                            <h3 className="text-3xl font-black uppercase leading-tight mb-4">{p.title}</h3>
+                                            <p className="font-medium opacity-80">{p.short}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="bg-[var(--accent-blue)] py-20 px-6 text-white text-center">
+                        <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-10">Let's build something.</h2>
+                        <button onClick={() => onNav("contact")} className="btn-flat bg-white text-black py-5 px-12 text-2xl uppercase font-bold tracking-widest">
+                            Start a Conversation
+                        </button>
+                    </section>
+                </div>
+            );
+        }
+
+        function AboutPage() {
+            return (
+                <div className="px-6 py-24 max-w-6xl mx-auto">
+                    <div className="mb-24">
+                        <div className="text-sm font-black uppercase tracking-widest text-[var(--accent-blue)] mb-4">Me</div>
+                        <h1 className="text-7xl font-black uppercase tracking-tighter mb-8">About Yassine</h1>
+                        <p className="text-3xl max-w-3xl leading-snug">
+                            I'm a Computer Science student at TU Dortmund (5th Semester). My approach is rooted in solid foundations and curiosity.
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        function ProjectsPage({ onProject }) {
+            return (
+                <div className="px-6 py-24 bg-[var(--bg-secondary)] min-h-screen">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="mb-16">
+                            <h1 className="text-7xl font-black uppercase tracking-tighter mb-4">All Projects</h1>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {PROJECTS.map(p => (
+                                <div 
+                                    key={p.id} 
+                                    onClick={() => onProject(p.id)}
+                                    className="bg-[var(--bg-primary)] border-[var(--border-width)] border-black p-10 cursor-pointer flat-card group"
+                                >
+                                    <div className="flex justify-between items-start mb-12">
+                                        <span className="font-black text-[var(--accent-blue)]">/{p.num}</span>
+                                        <span className="font-bold opacity-50">{p.year}</span>
+                                    </div>
+                                    <h3 className="text-4xl font-black uppercase mb-4 group-hover:text-[var(--accent-blue)] transition-colors">{p.title}</h3>
+                                    <p className="text-lg text-[var(--text-muted)] mb-8">{p.short}</p>
+                                    <div className="flex gap-2 flex-wrap">
+                                        {p.tags.map(t => <span key={t} className="text-xs font-black uppercase opacity-60">#{t}</span>)}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function ContactPage() {
+            return (
+                <div className="px-6 py-24 max-w-6xl mx-auto">
+                    <h1 className="text-7xl font-black uppercase tracking-tighter mb-8">Contact</h1>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div>
+                            <p className="text-2xl text-[var(--text-muted)] mb-8">Available for internships and collaborations.</p>
+                            <div className="space-y-4">
+                                <p className="text-xl font-bold">yassine.abousaid2004@gmail.com</p>
+                                <p className="text-xl font-bold">+49 152 5156 1403</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function ProjectDetail({ projectId, onBack }) {
+            const p = PROJECTS.find(proj => proj.id === projectId);
+            if (!p) return null;
+
+            return (
+                <div className="px-6 py-24 max-w-6xl mx-auto">
+                    <button onClick={onBack} className="font-black uppercase tracking-widest text-[var(--accent-blue)] mb-12 flex items-center gap-2">
+                        <i data-lucide="arrow-left" className="w-5 h-5"></i> Back to projects
+                    </button>
+                    <h1 className="text-7xl font-black uppercase tracking-tighter mb-8" style={{ color: p.color }}>{p.title}</h1>
+                    <p className="text-2xl font-bold mb-8">{p.detail.headline}</p>
+                    <p className="text-xl text-[var(--text-muted)] mb-12">{p.detail.body}</p>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+<!-- Dependencies -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</body></html>
